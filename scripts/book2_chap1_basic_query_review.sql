@@ -29,6 +29,8 @@ FROM dealerships AS d;
 SELECT c.first_name, c.last_name, c.email
 FROM customers AS c;
 
+--NOTE: it is not necessary to alias the columns; 
+--They are aliased as per the above example for Vehicles in the practice.
 
 
 
