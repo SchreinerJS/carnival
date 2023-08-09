@@ -56,6 +56,13 @@ FROM dealerships;
 	--website - string
 	--tax_id - ALSO A UNIQUE IDENTIFIER, string, includes hyphens 
 
+SELECT COUNT(DISTINCT dealership_id) AS dealerships
+FROM dealerships;
+	--51, same as dealership_location_id in vehicles
+
+SELECT dealership_id
+FROM dealerships;
+
 SELECT *
 FROM employees;
 --PRIMARY KEY: employee_id, 1000 UNIQUE values
@@ -152,8 +159,8 @@ FROM sales
 	--purchase_date, YYYY-MM-DD, datetime
 	--pickup_date, YYYY-MM-DD, datetime
 	--invoice_number, string
-	--company_name - contains commas, hyphens
-	--phone_number
+	--payment_method, string
+	--sale_returned, boolean 
 	
 SELECT COUNT(sale_id)
 FROM sales;
@@ -196,12 +203,29 @@ SELECT MAX(price)
 FROM sales; 
 	--99983.29
 
+SELECT MIN(purchase_date)
+FROM sales;
+	--2005-05-06
+
+SELECT MAX(purchase_date)
+FROM sales; 
+	--2020-07-29
+
+SELECT payment_method, COUNT(payment_method) AS total_methods
+FROM sales
+GROUP BY payment_method
+ORDER BY total_methods DESC, payment_method; 
+	--16 payment_methods
+
 SELECT *
 FROM salestypes
 --PRIMARY KEY: sales_type_id
 	--2 columns, 2 rows [updated to 3 rows]
 	--sales_type_id, int
 	--sales_type_name, string
+	-- 1=Purchase
+	-- 2=Lease
+	-- 3=Rent
 	
 SELECT *
 FROM vehicles;
@@ -209,7 +233,6 @@ FROM vehicles;
 --PRIMARY KEY/UNIQUE IDENTIFIER: vin - (each vehicle has its own VIN, no two are alike)
 	-- FOREIGN KEY - vehicle_type_id (references same in vehicletypes)
 	--NOTE: NO customer info in vehicle info, need to JOIN on 
-
 
 --11 columns or fields
 	--vehicle_id, numeric
@@ -221,11 +244,11 @@ FROM vehicles;
 	--floor_price, numeric (currency)
 	--msr_price, numeric (currency)
 	--miles_count, numeric
-	--year_of_car, numeric Q. should it be a string?
+	--year_of_car, numeric 
 	--is_sold, boolean, Q. Is [V] for "value", or "true"?
 	--is_new, boolean, Q. Is [V] for "value", or "true"?
 	--pickup_date, YYYY-MM-DD, datetime
-	--dealership_location_id, numeric, should it be a string? Q. Is this a State Code?
+	--dealership_location_id, numeric 
 
 SELECT COUNT(vehicle_id)
 FROM vehicles;
@@ -237,7 +260,11 @@ FROM vehicles;
 
 SELECT COUNT (DISTINCT dealership_location_id)
 FROM vehicles;
-	--50, so yes, likely a code for state
+	--50, but not a state code [51, with updates]
+
+SELECT DISTINCT dealership_location_id
+FROM vehicles
+ORDER BY dealership_location_id;
 
 SELECT COUNT(DISTINCT vehicle_type_id)
 FROM vehicles;

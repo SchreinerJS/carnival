@@ -78,3 +78,9 @@ VALUES
 
 SELECT *
 FROM dealershipemployees;
+
+SELECT *
+FROM vehicletypes;
+
+INSERT INTO
+public.vehicletypes()
