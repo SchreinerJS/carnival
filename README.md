@@ -1,5 +1,8 @@
 # carnival
 Exercises and projects for learning Advanced SQL for Developers through Nashville Software School 
 
-Scripts whose titles include postgreSQL are from postgreSQL documentation.
+Scripts titles including "practice" are my scripts.
+Scripts titles including "postgreSQL" are example scripts from postgreSQL documentation.
+Scripts titles including "review", "examples", or others' names are others' scripts.
+ 
 

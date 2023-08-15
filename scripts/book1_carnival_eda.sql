@@ -181,6 +181,10 @@ SELECT COUNT(DISTINCT sales_type_id)
 FROM sales;
 	-- 2 - should match salestypes of vehicles, lease & purchase
 
+SELECT COUNT(vehicle_id)
+FROM sales;
+	-- 5003, about 1/2 amount of vehicle_ids in vehicles
+
 SELECT COUNT(DISTINCT vehicle_id)
 FROM sales;
 	-- 1000, should match vehicles
@@ -252,11 +256,11 @@ FROM vehicles;
 
 SELECT COUNT(vehicle_id)
 FROM vehicles;
-	--10,000 vehicles- 
+	--10,000 vehicles
 
 SELECT COUNT (DISTINCT vehicle_id)
 FROM vehicles;
-	--10,000 vehicles- 
+	--10,000 vehicles- Unique identifier in vehicles table, matches # of rows
 
 SELECT COUNT (DISTINCT dealership_location_id)
 FROM vehicles;
@@ -265,10 +269,26 @@ FROM vehicles;
 SELECT DISTINCT dealership_location_id
 FROM vehicles
 ORDER BY dealership_location_id;
+	--50 locations [51, with updates]
 
 SELECT COUNT(DISTINCT vehicle_type_id)
 FROM vehicles;
 	--25 vehicle types
+
+SELECT COUNT(is_new)
+FROM vehicles
+WHERE is_new = FALSE;
+	--102 used vehicles
+
+SELECT *
+FROM vehicletypes;
+--PRIMARY KEY: vehicle_type_id 
+--4 columns or fields
+	--vehicle_type_id, numeric
+	--body_type, string
+	--make, string
+	--model, string
+--30 DISTINCT vehicle_type_ids & rows, based on body_type, make, and model of vehicle
 
 SELECT vehicle_type_id,
 		COUNT(vehicle_id) AS "total_vehicles"
@@ -277,16 +297,6 @@ GROUP BY vehicle_type_id
 ORDER BY vehicle_type_id;
 	--25 vehicle types, however note that the description of many values is the same
 
-SELECT *
-FROM vehicletypes;
---PRIMARY KEY: vehicle_type_id 
-
---4 columns or fields
-	--vehicle_type_id, numeric
-	--body_type, string
-	--make, string
-	--model, string
---30 DISTINCT vehicle_type_ids & rows, based on body_type, make, and model of vehicle 
 
 SELECT COUNT (DISTINCT body_type)
 FROM vehicletypes;
