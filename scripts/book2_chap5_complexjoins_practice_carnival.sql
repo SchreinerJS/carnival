@@ -1,4 +1,4 @@
---Practice: Sales Type by Dealership
+--COMPLEX JOINS Practice: Sales Type by Dealership
 
 --Produce a report that lists every dealership, the number of purchases done by each, 
 --and the number of leases done by each.
@@ -9,9 +9,10 @@ SELECT
 	SUM(CASE WHEN st.sales_type_id = 2 THEN 1 ELSE 0 END) AS lease
 FROM dealerships d
 	LEFT JOIN sales s ON s.dealership_id = d.dealership_id
-	INNER JOIN salestypes st USING(sales_type_id)
+	INNER JOIN salestypes st ON s.sales_type_id = st.sales_type_id
 GROUP BY d.dealership_id
 ORDER BY dealership; --code corrected afer review with CHATGPT AND team
+
 
 --Practice: Leased Types
 --Produce a report that determines the most popular vehicle model that is leased.

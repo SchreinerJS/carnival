@@ -1,9 +1,11 @@
+--CHAP 11 - Carnival Sales Reps
 --Employee Reports
+
 SELECT COUNT(*)
 FROM employees;
 --1001 employees total
 
---How many employees are there for each role?
+--1. How many employees are there for each role?
 
 SELECT et.employee_type_id, employee_type_name, COUNT(*)
 FROM employees e 
@@ -12,7 +14,7 @@ GROUP BY et.employee_type_id, employee_type_name;
 
 --NOTE: 144 finance managers total
 
---How many finance managers work at each dealership?
+--2. How many finance managers work at each dealership?
 SELECT business_name AS dealership, COUNT(de.employee_id)
 FROM employees e 
 	JOIN dealershipemployees de ON e.employee_id = de.employee_id
@@ -45,7 +47,9 @@ WITH dealership_shifts AS (
 SELECT first_name || ' ' || last_name AS employee_name,
 		total_dealerships
 FROM dealership_shifts
-WHERE employee_rank IN (1,2);
+WHERE employee_rank IN (1,2)
+ORDER BY total_dealerships DESC, employee_name;
+
 --There is only 1 top employee working at 3 locations, then a group tied for 2nd
 
 --4. Get a report on the top two employees who has made the most sales through leasing vehicles.

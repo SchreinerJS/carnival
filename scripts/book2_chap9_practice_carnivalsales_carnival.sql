@@ -1,7 +1,9 @@
---Purchase Income by Dealership
+--CHAP 9 - CARNIVAL SALES
+
+--A. Purchase Income by Dealership
 
 
---Write a query that shows the total purchase sales income per dealership.
+--A1. Write a query that shows the total purchase sales income per dealership.
 --salestype 1=Purchase 2=Lease
 
 --solution_i
@@ -15,7 +17,7 @@ WHERE st.sales_type_id = 1
 GROUP BY d.dealership_id
 ORDER BY dealership;
 
---Write a query that shows the purchase sales income per dealership for July of 2020.
+--A2. Write a query that shows the purchase sales income per dealership for July of 2020.
 
 SELECT d.business_name AS dealership,
 	SUM(s.price) AS purchase_sales_july_2020
@@ -29,7 +31,7 @@ GROUP BY d.business_name
 ORDER BY d.business_name;
 
 
---Write a query that shows the purchase sales income per dealership for all of 2020.
+--A3. Write a query that shows the purchase sales income per dealership for all of 2020.
 SELECT d.business_name AS dealership,
 	SUM(s.price) AS purchase_sales_july_2020
 FROM
@@ -42,8 +44,9 @@ GROUP BY d.business_name
 ORDER BY d.business_name;
 
 
---Lease Income by Dealership
---Write a query that shows the total lease income per dealership.
+--B. Lease Income by Dealership
+
+--B1. Write a query that shows the total lease income per dealership.
 SELECT 	d.business_name AS dealership,
 		SUM(s.price) AS total_purchase_sales
 FROM
@@ -54,7 +57,7 @@ WHERE st.sales_type_id = 2
 GROUP BY d.dealership_id
 ORDER BY dealership;
 
---Write a query that shows the lease income per dealership for Jan of 2020.
+--B2. Write a query that shows the lease income per dealership for Jan of 2020.
 SELECT d.business_name AS dealership,
 	SUM(s.price) AS purchase_sales_july_2020
 FROM
@@ -66,7 +69,7 @@ WHERE st.sales_type_id = 2 AND
 GROUP BY d.business_name
 ORDER BY d.business_name;
 
---Write a query that shows the lease income per dealership for all of 2019.
+--B3. Write a query that shows the lease income per dealership for all of 2019.
 SELECT d.business_name AS dealership,
 	SUM(s.price) AS purchase_sales_july_2020
 FROM
@@ -78,9 +81,9 @@ WHERE st.sales_type_id = 2 AND
 GROUP BY d.business_name
 ORDER BY d.business_name;
 
---Total Income by Employee
+--C. Total Income by Employee
 
---Write a query that shows the total income (purchase and lease) per employee.
+--C1. Write a query that shows the total income (purchase and lease) per employee.
 WITH SalesIncomeByEmployee AS (
 		SELECT 
 			s.employee_id,
@@ -100,8 +103,7 @@ SELECT 	first_name || ' ' || last_name AS employee_name,
 FROM SalesIncomeByEmployee
 ORDER BY total_income DESC;
 
--- calculate employee rank by sales per dealersh
---*NOTE TO SELF: Try with windows functions
+
 
 --Practice questions FROM CHATGPT:
 --2.--Sales Trend Analysis:

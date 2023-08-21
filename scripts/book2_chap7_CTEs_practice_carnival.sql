@@ -1,10 +1,10 @@
---PRACTICE CTESs
+--PRACTICE -- CTES -- CHAP 7
 
 --Top 5 Dealerships
 
 --1A. For the top 5 dealerships, which employees made the most sales?
 
---solution_i
+--solution_i -- seeking the top employee at the top 5 dealerships for total sales (price)
 WITH DealershipRank AS (
 		SELECT 
 			dealership_id,
@@ -18,8 +18,8 @@ WITH DealershipRank AS (
 					SUM(s.price) AS total_dealership_sales
 				FROM
 					sales s
-					INNER JOIN employees e USING (employee_id)
-					INNER JOIN dealerships d USING (dealership_id)
+					INNER JOIN employees e ON (s.employee_id = e.employee_id)
+					INNER JOIN dealerships d ON (s.dealership_id = d.dealership_id)
 				GROUP BY d.dealership_id
 			) AS dealership_sales -- calculate dealership rank by total sales
 ),
@@ -37,8 +37,8 @@ EmployeeRank AS (
 					SUM(s.price) AS ee_sales_by_dealership
 				FROM
 					sales s
-					INNER JOIN employees e USING (employee_id)
-					INNER JOIN dealerships d USING (dealership_id)
+					INNER JOIN employees e ON (s.employee_id = e.employee_id)
+					INNER JOIN dealerships d ON (s.dealership_id = d.dealership_id)
 				GROUP BY s.dealership_id, s.employee_id
 			) AS employee_sales -- calculate employee rank by sales per dealership
 )
@@ -47,8 +47,8 @@ SELECT business_name AS top_dealerships,
 		total_dealership_sales,
 		e.first_name || ' ' || e.last_name AS top_employee,
 		ee_sales_by_dealership
-FROM DealershipRank
-	LEFT JOIN EmployeeRank USING(dealership_id)
+FROM DealershipRank AS dr
+	LEFT JOIN EmployeeRank AS er ON (dr.dealership_id = er.dealership_id)
 	LEFT JOIN employees e USING(employee_id)
 WHERE dealership_rank BETWEEN 1 AND 5
 	AND employee_rank = 1
@@ -65,7 +65,9 @@ ORDER BY total_dealership_sales DESC; --select the top 5 dealerships in sales
 --NOTE: Could I use UNBOUNDED PRECEDING and RANGE to select the top 5 and top 1 in the CTEs,
 --rather than the WHERE filter in the outer query?
 
---solution_ii
+--REDO: with a count of the most sales limited to the top 5
+
+--solution_ii -- same, original code, working through ranking in layers, assist from CHATGPT
 
 --a. Calculate total sales for each employee
 --b. Rank employees within each dealership based on their total sales
@@ -145,8 +147,10 @@ LIMIT 5;--Select the top selling employee at each of the five top selling dealer
 
 
 
---1B. For the top 5 dealerships, which vehicle models were the most popular in sales?
---NOTE: revise this code based on new ranked solution for top 5 dealerships
+--1B OR 2. For the top 5 dealerships, which vehicle models were the most popular in sales?
+--REDO: with a count of the most sales of models by count limited to the top 5
+--REDO: with a count of the most sales of models by price limited to the top 5
+--REDO: with revised and simplified code from 1.
    
 WITH DealershipTotalSales AS (
     SELECT
@@ -195,7 +199,6 @@ TopModelByDealership AS (
 	FROM RankedModels
 	WHERE rank = 1--select the top employee in each dealership
 )
-
 --checks: 544 rows; dealerships 51 x 16 models = 816, but not all models will exist at all dealerships
 	
 SELECT
@@ -212,7 +215,7 @@ ORDER BY
 LIMIT 5;--Select the top selling models for the top 5 dealerships in sales
 
 
---For the top 5 dealerships, were there more sales or leases?
+--1C or 3.  For the top 5 dealerships, were there more sales or leases?
 WITH DealershipTotalSales AS (
     SELECT
         d.dealership_id,
@@ -308,6 +311,9 @@ FROM sales s
 --1000
 
 --For all used cars, which model is greatest in the inventory? 
+--NOTE: using is_new = FALSE as indicator for used vehicles
+--REDO:  should is_sold = FALSE also be filtered, as indicator for in inventory?
+
 WITH used_cars AS (
 	SELECT t1.vehicle_id, t1.make, t1.model
 		FROM (
@@ -330,7 +336,6 @@ used_cars_by_model AS (
 SELECT *
 FROM used_cars_by_model;
 --ANSWER: Corvette, with 12 in inventory
---NOTE: should is_sold = FALSE?
 
 --Which make is greatest inventory?
 

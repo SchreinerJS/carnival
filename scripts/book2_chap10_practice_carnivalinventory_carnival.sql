@@ -1,9 +1,10 @@
---Carnival Inventory
+--CHAP 10 Carnival Inventory
+
 --In this chapter, you will be writing queries to produce reports about the inventory of vehicles
 --at dealerships on the Carnival platform.
 
---Available Models
---1. Which model of vehicle has the lowest current inventory?  
+--A. Available Models
+--A1. Which model of vehicle has the lowest current inventory?  
 --This will help dealerships know which models the purchase from manufacturers.
 
 --Q. What does "current" mean?  
@@ -41,7 +42,7 @@ FROM vehicles v
 WHERE is_sold = FALSE AND pickup_date IS NULL;
 --2 sold vehicles do not have a pickup date
 ----------------------------------------------------------------------
---ANSWER 1 using a windows function
+--A1.a using a windows function
 WITH dealership_inventory AS (
     SELECT 
         d.business_name AS dealership, 
@@ -67,8 +68,8 @@ WHERE
     inventory_rank = 1
 ORDER BY 
     dealership;--select the lowest inventory at each dealership along with its corresponding model
-
---ANSWER 2 using CTEs and subqueries:
+ 
+--A1.b using CTEs and subqueries:
    
 WITH dealership_inventory AS (
     SELECT 
@@ -84,6 +85,7 @@ WITH dealership_inventory AS (
     GROUP BY 
         d.business_name, vt.model
 )
+
 SELECT 
     di.dealership,
     di.model,
@@ -98,7 +100,7 @@ JOIN (
         dealership_inventory
     GROUP BY 
         dealership
-) min_inv ON di.dealership = min_inv.dealership 
+	) min_inv ON di.dealership = min_inv.dealership 
 							  AND di.inventory_total = min_inv.min_inventory
 ORDER BY 
     di.dealership;
@@ -106,7 +108,7 @@ ORDER BY
 --2. Which model of vehicle has the highest current inventory? 
 --This will help dealerships know which models are, perhaps, not selling.
    
---ANSWER 1 using a windows function
+--A2.a using a windows function
 WITH dealership_inventory AS (
     SELECT 
         d.business_name AS dealership, 
@@ -133,7 +135,7 @@ WHERE
 ORDER BY 
     dealership;--select the lowest inventory at each dealership along with its corresponding model
 
---ANSWER 2 using CTEs and subqueries:
+--A2.b 2 using CTEs and subqueries:
    
 WITH dealership_inventory AS (
     SELECT 
@@ -168,8 +170,8 @@ JOIN (
 ORDER BY 
     di.dealership;
 
---Diverse Dealerships
---3. Which dealerships are currently selling the least number of vehicle models? 
+--B - Diverse Dealerships
+--B1. Which dealerships are currently selling the least number of vehicle models? 
 --This will let dealerships market vehicle models more effectively per region.
 
 --EDA--
@@ -185,7 +187,7 @@ FROM vehicles
 WHERE is_sold = TRUE AND sale_id IS NOT NULL
 --vehicles marked as sold where sale_id IS NOT NULL = 2481
 
---models with sale_id, marked as sold, by sale_id
+--B1.a. models with sale_id, marked as sold, by sale_id
 WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
@@ -214,7 +216,7 @@ WHERE
 ORDER BY 
     dealership;
 
---models with sale_id, by sale_id  (produces more numbers than 1st query)
+--B1.b. models with sale_id, by sale_id  (produces more numbers than 1st query)
 WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
@@ -241,7 +243,7 @@ WHERE
 ORDER BY 
     dealership;
 
---models by vehicle id, marked as sold (produces same numbers as 1st query)
+--B1.c. models by vehicle id, marked as sold (produces same numbers as 1st query)
 WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
@@ -271,9 +273,9 @@ ORDER BY
     dealership;   
    
    
---4. Which dealerships are currently selling the highest number of vehicle models?
+--B2.a. Which dealerships are currently selling the highest number of vehicle models?
 --This will let dealerships know which regions have either a high population, or less brand loyalty.
-   WITH model_sales AS (
+WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
         vt.model,
@@ -301,7 +303,7 @@ WHERE
 ORDER BY 
     dealership;
 
---models with sale_id, by sale_id  (produces more numbers than 1st query)
+--B2.b. models with sale_id, by sale_id  (produces more numbers than 1st query)
 WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
@@ -328,7 +330,7 @@ WHERE
 ORDER BY 
     dealership;
 
---models by vehicle id, marked as sold (produces same numbers as 1st query)
+--B2.c. models by vehicle id, marked as sold (produces same numbers as 1st query)
 WITH model_sales AS (
     SELECT 
         d.business_name AS dealership, 
@@ -355,4 +357,5 @@ FROM
 WHERE 
     model_rank = 1
 ORDER BY 
-    dealership;   
+    dealership;
+    

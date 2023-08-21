@@ -1,4 +1,4 @@
---Practice: Carnival
+--JOINING Practice: Carnival
 --Get a list of the sales that were made for each sales type.
 SELECT
 	s.sale_id,
