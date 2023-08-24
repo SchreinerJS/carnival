@@ -289,6 +289,7 @@ FROM vehicletypes;
 	--make, string
 	--model, string
 --30 DISTINCT vehicle_type_ids & rows, based on body_type, make, and model of vehicle
+--these vehicle types are not actually distinct, there are duplicates that are 
 
 SELECT vehicle_type_id,
 		COUNT(vehicle_id) AS "total_vehicles"

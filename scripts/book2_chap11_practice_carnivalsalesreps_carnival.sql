@@ -31,7 +31,7 @@ SELECT employee_id, first_name, last_name, COUNT(employee_type_id) AS total_role
 FROM employees 
 GROUP BY employee_id, last_name, first_name
 ORDER BY total_roles DESC
---No, each employee_id is assigned to one and only one role
+--1001 - one employee is assigned to more than one role
 
 WITH dealership_shifts AS (
 	SELECT 	e.employee_id,
@@ -51,6 +51,14 @@ WHERE employee_rank IN (1,2)
 ORDER BY total_dealerships DESC, employee_name;
 
 --There is only 1 top employee working at 3 locations, then a group tied for 2nd
+
+--CHECKS--29 employees are working at more than one dealership, 1 at 3, the rest at 2
+SELECT * 
+FROM employee_dealership_names en
+WHERE 
+	(SELECT COUNT(*) 
+	FROM employee_dealership_names en1
+	WHERE en.employee_id = en1.employee_id) > 1
 
 --4. Get a report on the top two employees who has made the most sales through leasing vehicles.
 
