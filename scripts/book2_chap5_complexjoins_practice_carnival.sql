@@ -1,4 +1,4 @@
---COMPLEX JOINS Practice: 
+--Chap 5 COMPLEX JOINS Practice: 
 --Sales Type by Dealership
 
 --1. Produce a report that lists every dealership, the number of purchases done by each, 

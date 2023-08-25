@@ -11,9 +11,8 @@ SELECT 	d.business_name AS dealership,
 		SUM(s.price) AS total_purchase_sales
 FROM
 	sales s
-		INNER JOIN salestypes st USING (sales_type_id)
-		INNER JOIN dealerships d USING (dealership_id)
-WHERE st.sales_type_id = 1
+		INNER JOIN dealerships d ON s.dealership_id = d.dealership_id
+WHERE s.sales_type_id = 1
 GROUP BY d.dealership_id
 ORDER BY dealership;
 

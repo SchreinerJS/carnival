@@ -151,7 +151,8 @@ LIMIT 5;--Select the top selling employee at each of the five top selling dealer
 --REDO: with a count of the most sales of models by count limited to the top 5
 --REDO: with a count of the most sales of models by price limited to the top 5
 --REDO: with revised and simplified code from 1.
-   
+  
+
 WITH DealershipTotalSales AS (
     SELECT
         d.dealership_id,

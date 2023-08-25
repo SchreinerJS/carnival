@@ -178,8 +178,8 @@ WITH dealership_employees AS
 		SELECT dealership,
 			first_name,
 			last_name, 
-			COUNT(*) AS total_sales,
-			RANK() OVER (PARTITION BY dealership ORDER BY COUNT(sale_id) DESC) AS sales_rank			
+			SUM(s.price) AS total_sales,
+			RANK() OVER (PARTITION BY dealership ORDER BY SUM(s.price) DESC) AS sales_rank			
 		FROM dealership_employees de
 			INNER JOIN sales s ON de.employee_id = s.employee_id
 		GROUP BY dealership, first_name, last_name
