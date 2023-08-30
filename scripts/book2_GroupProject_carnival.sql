@@ -73,6 +73,7 @@ LIMIT 1;
 --Top Performance
 --Which employees generate the most income per dealership?
 
+--ANSWER, without using a view
 WITH dealership_employees AS 
 (
 	SELECT dealership,
@@ -101,57 +102,65 @@ FROM employee_rank
 WHERE sales_rank = 1
 ORDER BY dealership--
 
---BELOW IS THE employee_dealership_names view
-CREATE OR REPLACE VIEW vwEmployeeDealershipNames AS
-SELECT e.employee_id,
-    e.first_name,
-    e.last_name,
-    first_name || ' ' || last_name AS employee_name,
-    d.business_name AS dealership,
-    d.dealership_id,
-    de.dealership_employee_id
-   FROM employees e
-     JOIN dealershipemployees de ON e.employee_id = de.employee_id
-     JOIN dealerships d ON d.dealership_id = de.dealership_id;
-
---working query--    
-SELECT edn.dealership, edn.employee_name, 
-FROM vwEmployeeDealershipNames edn
-	JOIN sales s ON edn.employee_id = s.employee.id
-GROUP BY ORDER BY employee_name
-
---Jessalynn's code--
-WITH sales_rank AS (
-    SELECT 
-    	de.dealership_id,
-        e.employee_id, 
-        e.first_name || ' ' || e.last_name AS employee_name,
-        SUM(s.price) AS total_sales_by_price,
-        RANK() OVER (PARTITION BY de.dealership_id ORDER BY SUM(s.price) DESC) AS sales_rank
-    FROM employees e 
-    JOIN sales s ON e.employee_id = s.employee_id 
-    JOIN dealershipemployees de ON de.employee_id = e.employee_id
-    GROUP BY e.employee_id, e.first_name, e.last_name, de.dealership_id
+--ANSWER using employee_dealership_names view
+--Rank top employees by total sales
+WITH ranked_employee_sales AS (
+	SELECT edn.dealership_id,
+		edn.dealership,
+		s.employee_id,
+		edn.employee_name,
+		SUM(s.price) AS total_sales,
+		RANK() OVER (PARTITION BY edn.dealership ORDER BY SUM(s.price) DESC) AS sales_rank			
+	FROM vwEmployeeDealershipNames edn
+		JOIN sales s ON edn.employee_id = s.employee_id
+	GROUP BY edn.dealership_id, edn.dealership, s.employee_id, edn.employee_name
 )
-SELECT
-    d.dealership_id,
-    d.business_name,
-    sr.employee_id, 
-    sr.employee_name,
-    sr.total_sales_by_price
-FROM
-    sales_rank sr
-JOIN
-    dealerships d ON d.dealership_id = sr.dealership_id
-WHERE
-    sr.sales_rank = 1;
+--Select top ranked employee at each dealership
+SELECT dealership,
+		employee_name,
+		total_sales AS top_ranked_sales
+FROM ranked_employee_sales
+WHERE sales_rank = 1
+ORDER BY dealership;
 
---Vehicle Reports
+/*Vehicle Reports
+
 --Inventory
---In our Vehicle inventory, show the count of each Model that is in stock.
+--In our Vehicle inventory, show the count of each Model that is in stock.*/
+
+SELECT model, COUNT(*)
+FROM vwVehicleTypesStatus
+WHERE is_sold = FALSE
+GROUP BY model
+ORDER BY model;
+
 --In our Vehicle inventory, show the count of each Make that is in stock.
+SELECT make, COUNT(*)
+FROM vwVehicleTypesStatus
+WHERE is_sold = FALSE
+GROUP BY make
+ORDER BY make;
+
 --In our Vehicle inventory, show the count of each BodyType that is in stock.
+SELECT body_type, COUNT(*)
+FROM vwVehicleTypesStatus
+WHERE is_sold = FALSE
+GROUP BY body_type
+ORDER BY body_type;
 
 --Purchasing Power
 --Which US state's customers have the highest average purchase price for a vehicle?
---Now using the data determined above, which 5 states have the customers with the highest average purchase price for a vehicle?
+
+SELECT customer_state, ROUND(AVG(purchase_price),2) AS avg_purchase_price
+FROM vwCustomerPurchasesByState
+GROUP BY customer_state
+ORDER BY avg_purchase_price DESC
+LIMIT 1;
+
+--Now using the data determined above, 
+--which 5 states have the customers with the highest average purchase price for a vehicle?
+SELECT customer_state, ROUND(AVG(purchase_price),2) AS avg_purchase_price
+FROM vwCustomerPurchasesByState
+GROUP BY customer_state
+ORDER BY avg_purchase_price DESC
+LIMIT 5;
