@@ -14,8 +14,7 @@
 
 WITH SalesByEmployee AS (
 	SELECT s.employee_id,
-			first_name,
-			last_name,
+			first_name || ' ' || last_name AS employee_name,
 			SUM(s.price) AS total_ee_sales
 	FROM sales s
 	JOIN employees e ON (s.employee_id = e.employee_id)
@@ -24,13 +23,12 @@ WITH SalesByEmployee AS (
 
 EmployeeRank AS (
 	SELECT 	employee_id,
-			last_name,
-			first_name,
+			employee_name,
 			total_ee_sales,
-			RANK() OVER(ORDER BY total_sales DESC) AS employee_rank
+			RANK() OVER(ORDER BY total_ee_sales DESC) AS employee_rank
 	FROM SalesByEmployee--rank employees by total_sales
 )			
-SELECT employee_id, first_name || ' ' || last_name AS employee_name, total_sales, employee_rank
+SELECT employee_id, employee_name, total_ee_sales, employee_rank
 FROM EmployeeRank
 WHERE employee_rank BETWEEN 1 AND 5--select the top 5 employees by sales income generated
 
