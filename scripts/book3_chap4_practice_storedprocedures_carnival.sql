@@ -13,33 +13,34 @@ Use the story above and extract the requirements.
 Build two stored procedures for Selling a car and Returning a car. 
 Be ready to share with your class or instructor your result.*/
 
-/*Q. What happens when a sale is made to add that sale to the sale database?  
---Is it automatically entered by a system like salesforce by scanning a barcode,
- or is it manually entered by the salesperson into a system like salesforce? Is it added using INSERT or UPDATE? */
+/* Q. Are we including leases in this process or purchased vehicles only?  
+ A. For this one, focus on all sales (1 & 2)
  
- SELECT * 
- FROM sales;
- 
-/* Q. Are we including leases in this process or purchased vehicles only?  For this one, focus on all sales
- 
---Q. It seems like this q. would be a perfect example of when a trigger might be needed? 
-If so, should the trigger be the sale being registered for the procedure to run?
---IF a new sale_id is added to the sales table, THEN update the associated vehicle_id in the vehicles table to is_sold = TRUE
+--Q. It seems like this q. would be a perfect example of when a trigger might be needed?  Without one, all we can do
+Is update the vehicles table to ensure that all vehicles with a sale_id are marked is_sold = TRUE.
+Otherwise, we would need a trigger to recognize when a new sale is added.
+
+SELECT * 
+FROM sales;
 
 REQUIREMENTS:
+1. for every vehicle_id in the sales table, match to the vehicle_id in the vehicles table
+2. mark that record is_sold = TRUE
+
+IF THERE NEEDS TO BE A TRIGGER :
 1. recognize when a new row/sale_id is added to the sales table
-2. match the vehicle_id in the sales table for the new row to the vehicle_id in the vehicles_table
-3. IF is_sold is FALSE, set to TRUE, ELSE nothing
-* this would require a trigger, so, to simplify:
+2. for each new sale_id, grab the vehicle_id in the vehicle table that matches to the vehicle_id in the sales_table
+3. check the status of IS_SOLD for that vehicle (is this necessary?) 
+		-- are there used vehicles marked as is_sold in vehicles but do not have a sale_id in the sales table?
+4. if is_sold = FALSE, mark it as TRUE; (is IF needed?)
+5. if is_sold = TRUE, leave it. (may not be needed)
 
-REQUIREMENTS:
-1. For every row in sales, match s.vehicle_id to v.vehicle_id
-3. IF is_sold is FALSE, set to TRUE, ELSE nothing
-
+WOULD THERE ALSO NEED TO BE A TRANSACTION?
 
 --STORED PROCEDURE - Selling a vehicle
 
 FROM Jessalynn:
+Q. why no "IN" or "INOUT" on the parameter?
 
 --Updating on vehicle_id ONLY*/
 CREATE OR REPLACE PROCEDURE remove_inventory(p_vehicle_id int) -- Name the procedure and define inputs and outputs
@@ -66,7 +67,9 @@ DECLARE
     p_vehicle_id INT;
 BEGIN -- Start logic
     -- Select vehicle_id from sales where sales_id equals the given sales_id
-    SELECT vehicle_id INTO p_vehicle_id FROM sales WHERE sale_id = p_sales_id;
+   SELECT vehicle_id INTO p_vehicle_id 
+   FROM sales 
+   WHERE sale_id = p_sales_id;
 
     -- Update vehicles to set is_sold to true where vehicle_id equals the selected vehicle_id
     UPDATE vehicles 
@@ -86,6 +89,8 @@ Carnival staff are required to do an oil change on the returned car before putti
 
 /* 1. mark sale_returned = TRUE
  2. mark is_sold = FALSE
+ 
+--Demin's code--
 
 --Updating on sale_id to get vehicle_id*/
 CREATE OR REPLACE PROCEDURE update_inventory_after_return(p_sales_id INT) -- Define input
@@ -113,42 +118,5 @@ END; -- End of logic
 $$;
 
 CALL remove_inventory_after_sale(1);
-
-
-
 ____________________
 
-/*OLD CODE
--- Name the procedure and define inputs and outputs*/
-CREATE OR REPLACE PROCEDURE update_sold_vehicles (
-   s.sale_id int, 
-   s.vehicle_id int,
-   v.vehicle_id int,
-   v.is_sold bool
-)
-LANGUAGE plpgsql  -- define language
-AS $$
-BEGIN
---check for sale_id in sales table			
-	SELECT s.sale_id 
-	FROM sales s
-		LEFT JOIN vehicle v 
-	WHERE s.vehicle_id = v_vehicle_id;
-	
- -- For every row in sales, match s.vehicle_id to v.vehicle_id
-	IF s.sale_id EXISTS
-	THEN 
--- IF is_sold is FALSE, set to TRUE, ELSE nothing
-	IF v.is_sold = FALSE THEN
-		UPDATE vehicles
-		SET is_sold = TRUE
-	ELSE v.is_sold
-
-	END IF;
-
-	COMMIT;
-
-END; -- Stop of logic
-$$;
-
-CALL update_sold_vehicles

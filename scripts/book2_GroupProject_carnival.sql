@@ -11,6 +11,7 @@
 --Best Sellers
 
 --Who are the top 5 employees for generating sales income?
+--OPTION 1, if concerned there might be duplicate totals
 
 WITH SalesByEmployee AS (
 	SELECT s.employee_id,
@@ -18,7 +19,8 @@ WITH SalesByEmployee AS (
 			SUM(s.price) AS total_ee_sales
 	FROM sales s
 	JOIN employees e ON (s.employee_id = e.employee_id)
-	GROUP BY s.employee_id, first_name, last_name--aggregate sales by employee
+	GROUP BY s.employee_id, first_name, last_name
+	ORDER BY total_ee_sales DESC--aggregate sales by employee
 ),
 
 EmployeeRank AS (
@@ -31,6 +33,17 @@ EmployeeRank AS (
 SELECT employee_id, employee_name, total_ee_sales, employee_rank
 FROM EmployeeRank
 WHERE employee_rank BETWEEN 1 AND 5--select the top 5 employees by sales income generated
+
+--OPTION 2, if not concerned there might be duplicate totals
+
+SELECT s.employee_id,
+	first_name || ' ' || last_name AS employee_name,
+	SUM(s.price) AS total_ee_sales
+FROM sales s
+JOIN employees e ON (s.employee_id = e.employee_id)
+GROUP BY s.employee_id, first_name, last_name
+ORDER BY total_ee_sales DESC
+LIMIT 5; --aggregate sales by employee and provide top 5 in DESC order
 
 --Who are the top 5 dealership for generating sales income?
 

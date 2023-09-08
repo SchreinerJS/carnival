@@ -1,6 +1,6 @@
-BOOK 3 CHAP 8 VEHICLE TRANSACTIONS
+/*BOOK 3 CHAP 8 VEHICLE TRANSACTIONS
 
-/*Write transactions to handle the following scenarios:
+Write transactions to handle the following scenarios:
 
 1. Adding 5 brand new 2021 Honda CR-Vs to the inventory. 
 They have I4 engines and are classified as a Crossover SUV or CUV. 

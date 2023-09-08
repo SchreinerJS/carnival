@@ -30,13 +30,15 @@ SAVEPOINT et1;
 -- insert a new row into the sales type table
 INSERT INTO employeetypes(employee_type_name)
 VALUES('Automotive Mechanic');
+--[RETURNING (declare variable for 2nd section)
+--[RETURNING (declare variable for 3rd section)]
 
 SAVEPOINT et2;
 
 -- insert a new row into the employees table
 INSERT INTO employees(first_name, last_name, email_address, phone, employee_type_id)
 VALUES
-('Glenn', 'McBrayer', 'glenn.mcbrayer@tdn.com', '123-321-1111', 18)
+('Glenn', 'McBrayer', 'glenn.mcbrayer@tdn.com', '123-321-1111',   DECLARE variable and then SELECT that variable, 18)
 ('Gregory', 'Richter', 'gregory.richter@tdn.com', '123-321-2222', 18),
 ('Kyle', 'Roberts', 'kyle.roberts@tdn.com', '123-321-3333', 18),
 ('Hershell', 'Koechner', 'hershell.koechner@tdn.com', '123-321-4444', 18),
