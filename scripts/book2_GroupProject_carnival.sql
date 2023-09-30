@@ -15,19 +15,19 @@
 
 WITH SalesByEmployee AS (
 	SELECT s.employee_id,
-			first_name || ' ' || last_name AS employee_name,
-			SUM(s.price) AS total_ee_sales
+			first_name || ' ' || last_name AS employee_name, -- concat employee_name
+			SUM(s.price) AS total_ee_sales -- aggregate sales by employee
 	FROM sales s
 	JOIN employees e ON (s.employee_id = e.employee_id)
 	GROUP BY s.employee_id, first_name, last_name
-	ORDER BY total_ee_sales DESC--aggregate sales by employee
+	ORDER BY total_ee_sales DESC -- sort results by most sales descending
 ),
 
 EmployeeRank AS (
 	SELECT 	employee_id,
 			employee_name,
 			total_ee_sales,
-			RANK() OVER(ORDER BY total_ee_sales DESC) AS employee_rank
+			RANK() OVER(ORDER BY total_ee_sales DESC) AS employee_rank -- rank the sales in the case of ties
 	FROM SalesByEmployee--rank employees by total_sales
 )			
 SELECT employee_id, employee_name, total_ee_sales, employee_rank

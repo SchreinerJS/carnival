@@ -17,13 +17,15 @@ TWO TRIGGERS NEEDED:
 2) [AFTER OR BEFORE?] UPDATE on the dealership table*/
 
 CREATE OR REPLACE FUNCTION update_dealership_website_trigger()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
 BEGIN
     -- Update website in the trigger function
     NEW.website := 'http://www.carnivalcars.com/' || LOWER(REPLACE(NEW.business_name, ' ', '_'));
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ ;
 
 CREATE TRIGGER dealership_website_trigger
 BEFORE INSERT ON dealerships
@@ -97,16 +99,47 @@ DELETE FROM dealerships
 WHERE dealership_id = 70;
 
 /* 3. For accounting purposes, the name of the state needs to be part of the dealership's tax id. 
- For example, if the tax id provided is bv-832-2h-se8w for a dealership in Virginia, 
-hen it needs to be put into the database as bv-832-2h-se8w--virginia.*/
+For example, if the tax id provided is bv-832-2h-se8w for a dealership in Virginia, 
+then it needs to be put into the database as bv-832-2h-se8w--virginia.*/
 
+--Q. If a state has more than one name, replace spaces with hyphens, underscore, or nothing?
+	--DECISION, remove spaces
+--Q. Should all existing dealership tax ids be updated, as well as any newly inserted dealerhips?
+	--DECISION, at this time, only updating newly inserted dealerships
 
+--TRIGGERS QUESTIONS:
+--If we need to create a trigger to update all existing ids, would that be statement-level or row-level?
+--Is there a way to test to avoid the incremental gaps due to inserting test data which is then deleted after (transactions)?
 
+CREATE OR REPLACE FUNCTION update_dealership_tax_id()
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Update website in the trigger function
+   NEW.tax_id := NEW.tax_id || '--' || LOWER(REPLACE(NEW.state, ' ', ''));
+   RETURN NEW;
+END;
+$$ ;
 
+CREATE OR REPLACE TRIGGER update_tax_id
+BEFORE INSERT ON dealerships
+FOR EACH ROW
+EXECUTE PROCEDURE update_dealership_tax_id();
 
+--[write trigger if needed to update all existing]
 
+--sample data
+INSERT INTO dealerships (business_name, city, state, website, tax_id)
+VALUES ('Crest Honda', 'Asheville', 'North Carolina', 'cresthonda.com', 'ab-121-ab-12a2');
 
+SELECT dealership_id, business_name, phone, website, state, tax_id
+FROM dealerships
+ORDER BY dealership_id DESC
 
+--delete sample data
+DELETE FROM dealerships
+WHERE dealership_id = 89;
 _________________________________
 --1st ATTEMPT Q1:  
 
@@ -183,8 +216,6 @@ EXECUTE PROCEDURE SetPurchaseDate()
  */
 
 
-
-
 --Ex.
 --CREATE FUNCTION set_net_price() 
 --  RETURNS TRIGGER 
@@ -208,10 +239,6 @@ EXECUTE PROCEDURE SetPurchaseDate()
 --  ON product
 --  FOR EACH ROW
 --  EXECUTE PROCEDURE set_net_price();
-
-
-
-
 	
    -- trigger logic
 

@@ -101,12 +101,79 @@ SELECT *
 FROM sales
 ORDER BY sale_id DESC;
 
+SELECT *
+FROM employees
+
+SELECT *
+FROM dealershipemployees
+
 --Practice
 --Help out HR fast track turnover by providing the following:
+Create employee
+, get the id of the employee
+Get id of two dealerships
+2 writes to dealership table
 
---Create a stored procedure with a transaction to handle hiring a new employee. Add a new record for the employee in the Employees table and add a record to the Dealershipemployees table for the two dealerships the new employee will start at.
+/*Create a stored procedure with a transaction to handle hiring a new employee. 
+Add a new record for the employee in the Employees table and add a record to the Dealershipemployees table
+for the two dealerships the new employee will start at.
 
--- start a transaction
+
+--
+tranaction insert employee data into the employee table
+then insert the appropriate data into the dealership employee twice, one for each dealership
+
+FROM KEATON LAW:
+CREATE OR REPLACE PROCEDURE hire_new_employee(
+    p_first_name TEXT,
+    p_last_name TEXT,
+    p_email_address TEXT,
+    p_phone TEXT,
+    p_employee_type_id INT,
+    p_dealership_id1 INT,
+    p_dealership_id2 INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_new_employee_id INT;
+BEGIN
+        -- Insert the new employee and retrieve their ID
+        INSERT INTO employees (first_name, last_name, email_address, phone, employee_type_id)
+        VALUES (p_first_name, p_last_name, p_email_address, p_phone, p_employee_type_id)
+        RETURNING employee_id INTO v_new_employee_id;
+        -- Insert records for the new employee in the dealershipemployees table for both dealerships
+        INSERT INTO dealershipemployees (dealership_id, employee_id)
+        VALUES (p_dealership_id1, v_new_employee_id),
+               (p_dealership_id2, v_new_employee_id);
+EXCEPTION
+    WHEN OTHERS THEN
+        --  rollback the transaction if it donked up
+        ROLLBACK;
+        RAISE;
+END;
+$$;
+CALL hire_new_employee('Bean', 'Beanson', 'beanz@bean.beans', '000-000-0000', 5, 15, 16)
+--select statement to see if everything went smoothly
+SELECT
+    e.employee_id,
+    e.first_name,
+    e.last_name,
+    e.email_address,
+    e.phone,
+    d.business_name,
+    d.phone AS dealership_phone,
+    d.state,
+    d.website
+FROM
+    employees e
+JOIN
+    dealershipemployees de ON e.employee_id = de.employee_id
+JOIN
+    dealerships d ON de.dealership_id = d.dealership_id
+WHERE
+    e.email_address = 'beanz@bean.beans';
+
+-- start a transaction*/
 BEGIN;
 
 -- insert a new row into the sales type table
