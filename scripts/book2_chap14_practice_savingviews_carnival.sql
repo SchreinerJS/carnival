@@ -35,19 +35,33 @@ WHERE s.sales_type_id = 2
 GROUP BY d.dealership_id
 ORDER BY dealership;
 
---a. All sales income
-CREATE VIEW dealership_sales_income AS
+--a. Total sales by dealership, where sales = revenue (both purchases and leases)
+CREATE OR REPLACE VIEW vw_dealership_sales_revenue AS
 SELECT 	d.business_name AS dealership,
-		SUM(s.price) AS total_purchase_sales
-FROM
-	sales s
-		INNER JOIN dealerships d ON s.dealership_id = d.dealership_id
+		SUM(s.price) AS total_sales_revenue
+FROM sales s
+	INNER JOIN dealerships d ON s.dealership_id = d.dealership_id
 GROUP BY d.dealership_id
 ORDER BY dealership;
 
+SELECT *
+FROM vw_dealership_sales_revenue;
 
---All vehicles id, vin, body_type, make, model, color, is_sold, is_new
-CREATE VIEW vwVehicleTypesStatus AS
+CREATE OR REPLACE VIEW vw_dealership_top_sales_revenue AS
+SELECT 	d.business_name AS dealership,
+		SUM(s.price) AS total_sales_revenue
+FROM sales s
+	INNER JOIN dealerships d ON s.dealership_id = d.dealership_id
+GROUP BY d.dealership_id
+ORDER BY total_sales_revenue DESC
+LIMIT 10;
+
+SELECT *
+FROM vw_dealership_top_sales_revenue;
+
+
+--Vehicle details & status
+CREATE VIEW vwVehicleStatus AS
 SELECT 	vehicle_id,
 		vin,
 		body_type,
@@ -62,7 +76,8 @@ FROM vehicles v
 	ON v.vehicle_type_id = vt.vehicle_type_id;
 
 SELECT *
-FROM vehicles
+FROM vwVehicleStatus
+
 
 --All customer purchases by state
 CREATE OR REPLACE VIEW vwCustomerPurchasesByState AS
@@ -77,4 +92,28 @@ FROM customers c
 	JOIN sales s ON c.customer_id = s.customer_id
 WHERE s.sales_type_id = 1
 ORDER BY state
+
+SELECT *
+FROM vwCustomerPurchasesByState
+
+CREATE OR REPLACE VIEW vw_EmployeeNamesandTypes AS
+SELECT e.employee_id,
+	e.first_name,
+	e.last_name,
+	e.first_name || ' ' || e.last_name AS employee_fullname,
+	e.employee_type_id,
+	et.employee_type_name AS employee_type
+FROM employees e
+	LEFT JOIN employeetypes et ON e.employee_type_id = et.employee_type_id;
+
+--most popular make sold
+CREATE VIEW vw_most_popular_make AS
+SELECT 	vt.make AS most_popular_make,
+		COUNT(s.sale_id) AS total_sales
+FROM sales s
+	INNER JOIN vehicles v ON s.vehicle_id = v.vehicle_id
+	INNER JOIN vehicletypes vt ON v.vehicle_type_id = vt.vehicle_type_id
+GROUP BY vt.make
+ORDER BY total_sales DESC
+LIMIT 1;
 

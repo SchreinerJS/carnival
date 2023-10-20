@@ -45,8 +45,8 @@ SELECT *
 FROM vWvehicletypes;
 
 --Create a view that shows the total number of employees for each employee type.
-CREATE VIEW vWTotalEmployeesByType AS
-SELECT DISTINCT employee_type_name AS employee_type, COUNT(employee_id)
+CREATE OR REPLACE VIEW vWTotalEmployeesByType AS
+SELECT DISTINCT employee_type_name AS employee_type, COUNT(employee_id) AS number_of_employees
 FROM employees e
 	LEFT JOIN employeetypes et ON e.employee_type_id = et.employee_type_id
 GROUP BY employee_type_name;
@@ -56,12 +56,7 @@ FROM vWTotalEmployeesByType;
 
 --Create a view that lists all customers without exposing their emails, phone numbers and street address.
 CREATE VIEW vWCustomersPublic AS
-SELECT c.customer_id,
-	c.last_name,
-	c.first_name,
-	company_name,
-	c.state,
-	c.zipcode
+SELECT c.customer_id, c.last_name, c.first_name, c.city, c.state
 FROM customers c; 
 
 SELECT *
@@ -81,7 +76,7 @@ SELECT DISTINCT st.sales_type_name AS sales_type,
 	COUNT(sale_id) AS total_sales
 FROM sales s
 	LEFT JOIN salestypes st ON s.sales_type_id = st.sales_type_id
-WHERE EXTRACT(YEAR FROM purchase_date) = 2018
+WHERE EXTRACT(YEAR FROM purchase_date) = '2018'
 GROUP BY st.sales_type_name;
 
 CREATE VIEW sales2018 AS
@@ -94,6 +89,7 @@ GROUP BY st.sales_type_name;
 
 SELECT *
 FROM sales2018;
+
 
 CREATE VIEW vwsales2018 AS
 SELECT DISTINCT st.sales_type_name AS sales_type,
