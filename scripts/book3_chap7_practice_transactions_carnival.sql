@@ -10,118 +10,207 @@ SELECT *
 FROM employeetypes;
 
 SELECT *
-FROM employees;
+FROM employees
+ORDER BY employee_id DESC;
 
 SELECT * 
-FROM dealershipemployees;
+FROM dealershipemployees
+ORDER BY dealership_employee_id DESC
+;
 
 SELECT *
 FROM dealerships
 WHERE business_name IN ('Meeler Autos of San Diego', 'Meadley Autos of California', 'Major Autos of Florida');
 --50, 36, 20
+-----------------------
 
---GROUP CODE  - Jennifer Schreiner, Lauren Hanson, Demin Zawity
-do $$
-declare
-  NewEmployeeTypeId integer;
-  NewEmployeeId1 integer;
-  NewEmployeeId2 integer;
-  NewEmployeeId3 integer;
-  NewEmployeeId4 integer;
-  NewEmployeeId5 integer;
-begin
--- add new role
-insert into employeetypes (employee_type_name)
-values (‘Automotive Mechanic’)
-returning employee_type_id into NewEmployeeTypeId;
--- 5 new mechanics
-insert into
+DO $$
+DECLARE
+  new_employee_type_id integer;
+  new_employee_id integer;
+
+BEGIN -- add new role
+
+INSERT INTO employeetypes
+	(
+	employee_type_name
+	)
+VALUES (
+	'Automotive Mechanic'
+)RETURNING employee_type_id INTO new_employee_type_id;--variable for the dealerships table
+
+-- insert 5 new mechanics
+
+INSERT INTO
 	employees (
 		first_name,
 		last_name,
 		email_address,
 		phone,
-		employee_type_id)
-		
-values
-	(‘George’, ‘Hanson’, ‘george@george.com’, ‘516-934-4829’, NewEmployeeTypeId)
-			returning employee_id into NewEmployeeId1;
-		
-insert into
-	employees (
-		first_name,
-		last_name,
-		email_address,
-		phone,
-		employee_type_id)
-values
-	(‘Nigel’, ‘Hussung’, ‘nigel@nigel.com’, ‘412-398-6283’, NewEmployeeTypeId)
-			returning employee_id into NewEmployeeId2;
-		
-insert into
-	employees (
-		first_name,
-		last_name,
-		email_address,
-		phone,
-		employee_type_id)
-values
-	(‘Anastasia’, ‘Thomas’, ‘anastasia@anastasia.com’, ‘689-321-4938’, NewEmployeeTypeId)
-			returning employee_id into NewEmployeeId3;
-		
-insert into
-	employees (
-		first_name,
-		last_name,
-		email_address,
-		phone,
-		employee_type_id)
-values
-	(‘Gio’, ‘Roggenbuck’, ‘gio@gio.com’, ‘513-284-5693’, NewEmployeeTypeId)
-			returning employee_id into NewEmployeeId4;
-	
-insert into
-	employees (
-		first_name,
-		last_name,
-		email_address,
-		phone,
-		employee_type_id)
-	values
-	(‘Poppy’, ‘Nelson’, ‘poppy@poppy.com’, ‘378-276-3948’, NewEmployeeTypeId)
-		returning employee_id into NewEmployeeId5;
-/* WITHOUT FOREACH LOOP*/
-insert into
+		employee_type_id
+	)
+
+VALUES
+	(
+		'Glenn',
+		'McBrayer',
+		'glenn.mcbrayer@tdn.com',
+		'123-321-1111',
+		new_employee_type_id
+	) RETURNING employee_id into new_employee_id;
+
+INSERT INTO
 	dealershipemployees (
 		dealership_id,
 		employee_id
 	)
 	values
-		(36, NewEmployeeId1),
-		(50, NewEmployeeId1),
-		(20, NewEmployeeId1),
+		(36, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(50, new_employee_id),--add to 'Meadley Autos of California'
+		(20, new_employee_id);--add to 'Major Autos of Florida'
 		
-		(36, NewEmployeeId2),
-		(50, NewEmployeeId2),
-		(20, NewEmployeeId2),
+INSERT INTO
+	employees (
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id		
+	)	
+	
+VALUES
+	(
+		'Gregory',
+		'Richter',
+		'gregory.richter@tdn.com',
+		'123-321-2222', 
+		new_employee_type_id
+	) RETURNING employee_id into new_employee_id;
+
+INSERT INTO
+	dealershipemployees (
+		dealership_id,
+		employee_id
+	)
+VALUES
+		(36, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(50, new_employee_id),--add to 'Meadley Autos of California'
+		(20, new_employee_id);--add to 'Major Autos of Florida'
 		
-		(36, NewEmployeeId3),
-		(50, NewEmployeeId3),
-		(20, NewEmployeeId3),
+INSERT INTO
+	employees (
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id		
+	)	
+	
+VALUES
+	(
+		'Kyle',
+		'Roberts',
+		'kyle.roberts@tdn.com',
+		'123-321-3333',
+		new_employee_type_id
+	) RETURNING employee_id into new_employee_id;
+
+INSERT INTO
+	dealershipemployees (
+		dealership_id,
+		employee_id
+	)
+VALUES
+		(36, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(50, new_employee_id),--add to 'Meadley Autos of California'
+		(20, new_employee_id);--add to 'Major Autos of Florida'
+
+INSERT INTO
+	employees (
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id
+	)	
+VALUES
+	(
+		'Hershell',
+		'Koechner',
+		'hershell.koechner@tdn.com',
+		'123-321-4444',
+		new_employee_type_id
+	) RETURNING employee_id into new_employee_id;
+
+INSERT INTO
+	dealershipemployees (
+		dealership_id,
+		employee_id
+	)
+	values
+		(36, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(50, new_employee_id),--add to 'Meadley Autos of California'
+		(20, new_employee_id);--add to 'Major Autos of Florida'
 		
-		(36, NewEmployeeId4),
-		(50, NewEmployeeId4),
-		(20, NewEmployeeId4),
-		
-		(36, NewEmployeeId5),
-		(50, NewEmployeeId5),
-		(20, NewEmployeeId5);
-commit;
-exception when others then
-  RAISE INFO ‘Error:%’, SQLERRM;
-  rollback;
-end;
-$$ language plpgsql;
+INSERT INTO
+	employees (
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id
+	)
+	
+VALUES		
+	(
+	'Susan',
+	'Adams',
+	'susan.adams@tdn.com',
+	'123-321-5555',
+	new_employee_type_id
+) RETURNING employee_id into new_employee_id;		
+
+INSERT INTO
+	dealershipemployees (
+		dealership_id,
+		employee_id
+	)
+	values
+		(36, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(50, new_employee_id),--add to 'Meadley Autos of California'
+		(20, new_employee_id);--add to 'Major Autos of Florida'
+
+--EXCEPTION WHEN others THEN
+  --RAISE INFO ‘Error:%’, SQLERRM;
+
+--END; 
+
+$$ LANGUAGE plpgsql;
+
+--ROLLBACK;
+--COMMIT;
+
+
+______________
+--ODIE'S example code
+SELECT * FROM vehicletypes v
+WHERE v.vehcile_type_id = 32;
+
+BEGIN;
+--Foreign Key
+--DELETE FROM vehicles
+--WHERE vehicles_type_id = 30;
+
+DELETE FROM vehicletypes v
+WHERE v.vehicle_type_id = 32;
+
+--ROLLBACK
+--COMMIT  
+	--Test the code first before committing; after it's committed, it is final
+--END if you use this at the end of the transaction, it will commit
+
+
+__________________________
 
 
 

@@ -1,9 +1,12 @@
 /*Stored Procedures Practice
-Carnival would like to use stored procedures to process valuable business logic surrounding their business. Since they understand that procedures can hold many SQL statements related to a specific task they think it will work perfectly for their current problem.
+Carnival would like to use stored procedures to process valuable business logic surrounding their business.
+Since they understand that procedures can hold many SQL statements related to a specific task
+they think it will work perfectly for their current problem.
 
 Inventory Management
 1. Selling a Vehicle
-Carnival would like to create a stored procedure that handles the case of updating their vehicle inventory when a sale occurs. 
+Carnival would like to create a stored procedure that handles the case
+of updating their vehicle inventory when a sale occurs. 
 They plan to do this by flagging the vehicle as is_sold which is a field on the Vehicles table. 
 When set to True this flag will indicate that the vehicle is no longer available in the inventory. 
 Why not delete this vehicle? We don't want to delete it because it is attached to a sales record.
@@ -11,45 +14,33 @@ Why not delete this vehicle? We don't want to delete it because it is attached t
 Goals
 Use the story above and extract the requirements.
 Build two stored procedures for Selling a car and Returning a car. 
-Be ready to share with your class or instructor your result.*/
+Be ready to share with your class or instructor your result.
 
-/* Q. Are we including leases in this process or purchased vehicles only?  
- A. For this one, focus on all sales (1 & 2)
+Q. Are we including leases in this process or purchased vehicles only?  
+A. It could be either way, just make a decision and note which one; but would be a good question for a stakeholder
  
---Q. It seems like this q. would be a perfect example of when a trigger might be needed?  Without one, all we can do
-Is update the vehicles table to ensure that all vehicles with a sale_id are marked is_sold = TRUE.
-Otherwise, we would need a trigger to recognize when a new sale is added.
-
+Selling a car: 
 SELECT * 
 FROM sales;
 
 REQUIREMENTS:
-1. for every vehicle_id in the sales table, match to the vehicle_id in the vehicles table
+1. for every vehicle_id in the sales table
 2. mark that record is_sold = TRUE
 
-IF THERE NEEDS TO BE A TRIGGER :
-1. recognize when a new row/sale_id is added to the sales table
-2. for each new sale_id, grab the vehicle_id in the vehicle table that matches to the vehicle_id in the sales_table
-3. check the status of IS_SOLD for that vehicle (is this necessary?) 
-		-- are there used vehicles marked as is_sold in vehicles but do not have a sale_id in the sales table?
-4. if is_sold = FALSE, mark it as TRUE; (is IF needed?)
-5. if is_sold = TRUE, leave it. (may not be needed)
+--STORED PROCEDURE - Selling a car
 
-WOULD THERE ALSO NEED TO BE A TRANSACTION?
-
---STORED PROCEDURE - Selling a vehicle
 
 FROM Jessalynn:
 Q. why no "IN" or "INOUT" on the parameter?
 
 --Updating on vehicle_id ONLY*/
-CREATE OR REPLACE PROCEDURE remove_inventory(p_vehicle_id int) -- Name the procedure and define inputs and outputs
+CREATE OR REPLACE PROCEDURE remove_inventory(IN vehicle_id int) -- Name the procedure and define inputs and outputs
 LANGUAGE plpgsql  -- define language
 AS $$
 BEGIN -- start logic
-	UPDATE vehicles
+	UPDATE vehicles v
 	SET is_sold = TRUE 
-	WHERE vehicle_id = p_vehicle_id;
+	WHERE v.vehicle_id = v.vehicle_id;
 
 	COMMIT;
 
