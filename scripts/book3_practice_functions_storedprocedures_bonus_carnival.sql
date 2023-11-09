@@ -96,3 +96,14 @@ FROM func_vehicleModel_highest_inventory();
 -- Create a stored procedure that adds a new record in the sales table
 -- Create a stored procedure that removes a record from the sales table
 -- Create a stored procedure that adds a mew record to the carrepairtypelogs table 
+
+--William's stored procedure for removing a record from the sales table
+CREATE OR REPLACE PROCEDURE sp_remove_sale(IN my_sale_id INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM sales s WHERE s.sale_id = my_sale_id;
+END $$;
+
+CALL sp_remove_sale(1);
+

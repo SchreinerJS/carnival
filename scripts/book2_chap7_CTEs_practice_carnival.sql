@@ -457,10 +457,13 @@ FROM avg_employee_sales
 --18,020.12
 
 
-
+--test
 --Sales Mix Analysis:
 --Determine the percentage of sales attributed to each sales type (purchase or lease). 
 --Present a breakdown of sales types along with their respective percentages.
+
+
+
 
 --Geographic Dealership Distribution:
 --How many dealerships are located in each city? 

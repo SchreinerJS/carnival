@@ -24,7 +24,7 @@ WHERE business_name IN ('Meeler Autos of San Diego', 'Meadley Autos of Californi
 --50, 36, 20
 -----------------------
 
-DO $$
+DO $$ -- 'DO' will commit automatically if nothing fails
 DECLARE
   new_employee_type_id integer;
   new_employee_id integer;
@@ -59,6 +59,7 @@ VALUES
 		new_employee_type_id
 	) RETURNING employee_id into new_employee_id;
 
+--Insert new employee into dealershipemployees
 INSERT INTO
 	dealershipemployees (
 		dealership_id,
@@ -180,167 +181,221 @@ INSERT INTO
 		(50, new_employee_id),--add to 'Meadley Autos of California'
 		(20, new_employee_id);--add to 'Major Autos of Florida'
 
---EXCEPTION WHEN others THEN
-  --RAISE INFO ‘Error:%’, SQLERRM;
+EXCEPTION
+	 WHEN others THEN
+	 	ROLLBACK
+  		RAISE INFO ‘Transaction failed:%’, SQLERRM;
 
---END; 
+END; 
 
 $$ LANGUAGE plpgsql;
 
 --ROLLBACK;
 --COMMIT;
+-------------------
+--refactored transacation from Odie
 
-
-______________
---ODIE'S example code
-SELECT * FROM vehicletypes v
-WHERE v.vehcile_type_id = 32;
-
-BEGIN;
---Foreign Key
---DELETE FROM vehicles
---WHERE vehicles_type_id = 30;
-
-DELETE FROM vehicletypes v
-WHERE v.vehicle_type_id = 32;
-
---ROLLBACK
---COMMIT  
-	--Test the code first before committing; after it's committed, it is final
---END if you use this at the end of the transaction, it will commit
-
-
-__________________________
-
-
-
-__________________________
---	Lauren Hanson
---	do $$
---declare
---  NewEmployeeTypeId integer;
---  NewEmployeeIds integer[];
---  DealershipIds integer[] = array[36, 20, 50];
---  dealer_id integer;
---begin
-
-
-do $$
-DECLARE
-	NewEmployeeTypeId integer;
-	NewEmployeeIds integer[]
---	NewEmployeeId1 integer;
---	NewEmployeeId2 integer;
---	NewEmployeeId3 integer;
---	NewEmployeeId4 integer;
---	NewEmployeeId5 integer;
-	DealershipIds integer[] = array[36, 20, 50]
---	dealer_id integer;
-
--- start transaction
-BEGIN;
-
---SAVEPOINT et1;
-
--- insert a new row into the sales type table
-INSERT INTO employeetypes(employee_type_name)
-VALUES('Automotive Mechanic'
-) RETURNING employee_type_id INTO NewEmployeeTypeId;
-
---SAVEPOINT et2;
-
--- insert first new employee into the employees table
-INSERT INTO employees(
-	first_name,
-	last_name,
-	email_address,
-	phone,
-	employee_type_id)
+--Procedure for adding new employeetype
+CREATE OR REPLACE PROCEDURE spr_addEmployeeType(IN new_employee_type_name VARCHAR(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
 	
---	Lauren Hanson
---	VALUES
---		(‘George’, ‘Hanson’, ‘george@george.com’, ‘516-934-4829’, NewEmployeeTypeId),
---		(‘Nigel’, ‘Hussung’, ‘nigel@nigel.com’, ‘412-398-6283’, NewEmployeeTypeId),
---		(‘Anastasia’, ‘Thomas’, ‘anastasia@anastasia.com’, ‘689-321-4938’, NewEmployeeTypeId),
---		(‘Gio’, ‘Roggenbuck’, ‘gio@gio.com’, ‘513-284-5693’, NewEmployeeTypeId),
---		(‘Poppy’, ‘Nelson’, ‘poppy@poppy.com’, ‘378-276-3948’, NewEmployeeTypeId)
---		returning employee_id into NewEmployeeIds;
---		
---foreach dealer_id in array DealershipIds
---loop 	
---	insert into
---	dealershipemployees (
---		dealership_id,
---		employee_id
---	)
---	need to figure out NewEmployeeIds. It is currently an array.
---	values(dealer_id, NewEmployeeIds);
---end loop;
---insert into
---	dealershipemployees (
---		dealership_id,
---		employee_id
---	)
---values (36, NewEmployeeId), (20, NewEmployeeId), (50, NewEmployeeId);
---exception when others then
---  RAISE INFO ‘Error:%’, SQLERRM;
---  rollback;
---end;
---$$ language plpgsql;
+	INSERT INTO employeetypes
+	(employee_type_name)
+	VALUES 
+	(new_employee_type_name);
+END
+$$;
 
-/*Jennifer's clunky code
---	VALUES
---	('Glenn', 'McBrayer', 'glenn.mcbrayer@tdn.com', '123-321-1111', NewEmployeeTypeId
---	) RETURNING employee_id into NewEmployeeID_1);
---
----- insert second new employee into the employees table
---INSERT INTO employees(first_name, last_name, email_address, phone, employee_type_id)
---VALUES
---('Gregory', 'Richter', 'gregory.richter@tdn.com', '123-321-2222', NewEmployeeTypeId
---	) RETURNING employee_id into NewEmployeeID_2);
---
----- insert third new employee into the employees table
---INSERT INTO employees(first_name, last_name, email_address, phone, employee_type_id)
---VALUES
---('Kyle', 'Roberts', 'kyle.roberts@tdn.com', '123-321-3333', NewEmployeeTypeId
---	) RETURNING employee_id into NewEmployeeID_3);
---
---INSERT INTO employees(first_name, last_name, email_address, phone, employee_type_id)
---VALUES
---('Hershell', 'Koechner', 'hershell.koechner@tdn.com', '123-321-4444', NewEmployeeTypeId
---	) RETURNING employee_id into NewEmployeeID_4);
---
---INSERT INTO employees(first_name, last_name, email_address, phone, employee_type_id)
---VALUES
---('Susan', 'Adams', 'susan.adams@tdn.com', '123-321-5555', NewEmployeeTypeId
---	) RETURNING employee_id into NewEmployeeID_5);
 
-	--Jennifer's original code without variables
 
---SAVEPOINT et3;
 
-INSERT INTO dealershipemployees(dealership_id, employee_id)
-VALUES
-(DealershipIds, NewEmployeeID_1),
-(DealershipIds, NewEmployeeID_2),
-(DealershipIds, NewEmployeeID_3),
-(DealershipIds, NewEmployeeID_4),
-(DealershipIds, NewEmployeeID_5);
 
-EXCEPTION WHEN others THEN 
-RAISE INFO 'error:%', SQLERRM;
-  ROLLBACK;
 
-END;
 
-$$ language plpgsql;
+--Procedure for adding new employees and dealershipemployees
+CREATE OR REPLACE PROCEDURE spr_addEmployeeAndDealershipEmployee
+(
+IN employee_first_name VARCHAR(50), 
+IN employee_last_name VARCHAR(50),
+IN employee_email VARCHAR(50),
+IN employee_phone VARCHAR(50),
+IN first_dealership INT,
+IN second_dealership INT,
+IN third_dealership INT
+)
+LANGUAGE plpgsql
+AS $$
 
--- commit the transaction
---COMMIT;
+DECLARE 
+	new_employee_id integer;
+	new_employee_type_id integer;
 
---ROLLBACK TO SAVEPOINT et1;
+BEGIN
+	
+	--INSERT into employees table
+	INSERT INTO
+	employees 
+	(
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id
+	)
+	VALUES
+	(
+		employee_first_name,
+		employee_last_name,
+		employee_email,
+		employee_phone,
+		(SELECT employee_type_id FROM employeetypes ORDER BY employee_type_id DESC LIMIT 1)
+	) RETURNING employee_id INTO new_employee_id;
 
---TRANSACTIONS & EXCEPTION HANDLING
+	/*CALL spr_addemployee
+	(
+	employee_first_name, employee_last_name, employee_email, employee_phone, new_employee_type_id, new_employee_id
+	);*/
+
+
+	--INSERT into dealershipemployees table (uses new_employee_id variable)
+	INSERT INTO
+	dealershipemployees (
+		dealership_id,
+		employee_id
+	)
+	values
+		(first_dealership, new_employee_id),--add to 'Meeler Autos of San Diego'
+		(second_dealership, new_employee_id),--add to 'Meadley Autos of California'
+		(third_dealership, new_employee_id);--add to 'Major Autos of Florida'
+	
+END
+$$;
+
+
+--If I just want a procedure that adds Employees
+CREATE OR REPLACE PROCEDURE spr_addEmployee
+(
+IN employee_first_name VARCHAR(50), 
+IN employee_last_name VARCHAR(50),
+IN employee_email VARCHAR(50),
+IN employee_phone VARCHAR(50),
+IN new_employee_type_id INT,
+OUT new_employee_id INT
+)
+LANGUAGE plpgsql
+AS $$
+
+BEGIN
+	
+	--INSERT into employees table
+	INSERT INTO
+	employees 
+	(
+		first_name,
+		last_name,
+		email_address,
+		phone,
+		employee_type_id
+	)
+	VALUES
+	(
+		employee_first_name,
+		employee_last_name,
+		employee_email,
+		employee_phone,
+		new_employee_type_id
+	) RETURNING employee_id INTO new_employee_id;
+	
+END
+$$;
+
+--test
+-- Odie's refactor to Jennifer's solution
+
+SELECT * FROM employeetypes e 
+ORDER BY e.employee_type_id DESC;
+
+SELECT * FROM employees e 
+ORDER BY e.employee_id DESC;
+
+SELECT * FROM dealershipemployees d 
+ORDER BY d.dealership_employee_id DESC;
+
+
+DO $$
+BEGIN; -- add new role
+
+	
+	CALL spr_addemployeetype('Actor'); 
+	
+	CALL spr_addemployeeanddealershipemployee
+	(
+		'Keanu',
+	 	'Reeves',
+	 	'keanu.reeves@actors.com',
+	 	'555-222-1234',
+	 	36,
+	 	50,
+	 	20
+	);
+	
+	CALL spr_addemployeeanddealershipemployee
+	(
+		'Ryan',
+	 	'Reynolds',
+	 	'ryan.reynolds@actors.com',
+	 	'555-333-3412',
+	 	36,
+	 	50,
+	 	20
+	);
+	
+	CALL spr_addemployeeanddealershipemployee
+	(
+		'Scarlett',
+	 	'Johansson',
+	 	'scarlett.johansson@actors.com',
+	 	'555-843-8576',
+	 	36,
+	 	50,
+	 	20
+	);
+	
+	CALL spr_addemployeeanddealershipemployee
+	(
+		'Hugh',
+	 	'Jackman',
+	 	'hugh.jackman@actors.com',
+	 	'555-376-1010',
+	 	36,
+	 	50,
+	 	20
+	);
+	
+	CALL spr_addemployeeanddealershipemployee
+	(
+		'Robert',
+	 	'Downey Jr.',
+	 	'robert.downeyjr@actors.com',
+	 	'555-222-3333',
+	 	36,
+	 	50,
+	 	20
+	);
+
+	EXCEPTION 
+		WHEN others THEN
+  			ROLLBACK;
+  			RAISE EXCEPTION 'Transaction failed: %', SQLERRM;
+  	
+END; 
+
+$$ LANGUAGE plpgsql;
+
+
+--SAMPLE TRANSACTIONS & EXCEPTION HANDLING FROM LESSON
 
 do $$ 
 DECLARE 
